@@ -1,6 +1,6 @@
 Digitalización del menú y gestión de pedidos para un restaurante local
 link: delinadim.netlify.app
-# React + Vite
+# React + Vite + Tailwind
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
