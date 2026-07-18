@@ -19,8 +19,3 @@ Los restaurantes locales suelen depender exclusivamente de PDFs pesados en Whats
 *   📱 **Diseño Mobile-First:** Navegación táctil intuitiva pensada para comensales desde smartphones.
 *   🛒 **Gestión de Pedidos:** Flujo dinámico para seleccionar productos, ver detalles y preparar el pedido para su despacho.
 
-## 🔧 Instalación Local
-
-1. Clonar el repositorio:
-   ```bash
-   git clone [https://github.com/hassenjassir2004/DELINADIM.git](https://github.com/hassenjassir2004/DELINADIM.git)
