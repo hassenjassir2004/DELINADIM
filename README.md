@@ -1,19 +1,26 @@
-Digitalización del menú y gestión de pedidos para un restaurante local
-link: delinadim.netlify.app
-# React + Vite + Tailwind
+# 🍽️ DELINADIM - Digitalización Gastronómica Integrada
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma web moderna y de alto rendimiento diseñada para la digitalización de menús y la optimización en la gestión de pedidos de un restaurante local.
 
-Currently, two official plugins are available:
+🔗 **Demo en vivo:** [delinadim.netlify.app](https://delinadim.netlify.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 El Reto de Negocio
+Los restaurantes locales suelen depender exclusivamente de PDFs pesados en WhatsApp o de altas comisiones en plataformas de terceros. **DELINADIM** resuelve esto ofreciendo una Single Page Application (SPA) ultra rápida, optimizada para dispositivos móviles, que facilita la visualización del menú y agiliza el flujo de pedidos directamente hacia los canales del restaurante.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Stack Tecnológico y Decisiones de Arquitectura
+*   **React:** Para una interfaz reactiva, modular y basada en componentes reutilizables.
+*   **Vite:** Como entorno de desarrollo y empaquetador para garantizar tiempos de carga menores a un segundo.
+*   **Tailwind CSS:** Para un diseño estilizado, consistente, responsivo (*Mobile-First*) y sin hojas de estilo infladas.
 
-## Expanding the ESLint configuration
+## 🎯 Características Clave
+*   ⚡ **Carga Instantánea:** Optimización de imágenes y assets para mitigar la tasa de rebote del usuario.
+*   📱 **Diseño Mobile-First:** Navegación táctil intuitiva pensada para comensales desde smartphones.
+*   🛒 **Gestión de Pedidos:** Flujo dinámico para seleccionar productos, ver detalles y preparar el pedido para su despacho.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-<img width="1903" height="985" alt="image" src="https://github.com/user-attachments/assets/cb022080-906d-4479-9dbc-9278f103ab94" />
+## 🔧 Instalación Local
+
+1. Clonar el repositorio:
+   ```bash
+   git clone [https://github.com/hassenjassir2004/DELINADIM.git](https://github.com/hassenjassir2004/DELINADIM.git)
