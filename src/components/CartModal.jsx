@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useCart } from "../context/CartContext";
 
 const CartModal = ({ isOpen, onClose }) => {
@@ -25,10 +25,19 @@ const CartModal = ({ isOpen, onClose }) => {
       "Hola Delinadim, me gustaría hacer un pedido con los siguientes productos:\n\n";
 
     cart.forEach((cartItem) => {
+      // 🚀 USAMOS EL PRECIO UNITARIO FINAL (Que ya incluye los extras)
       const formattedPrice = new Intl.NumberFormat("es-CO").format(
-        cartItem.item.price * cartItem.quantity
+        cartItem.unitPrice * cartItem.quantity
       );
+      
       message += `*${cartItem.quantity}x* ${cartItem.item.title} ($${formattedPrice} COP)\n`;
+      
+      // 🚀 AGREGAMOS LOS EXTRAS AL MENSAJE DE WHATSAPP
+      if (cartItem.modifiers && cartItem.modifiers.length > 0) {
+        cartItem.modifiers.forEach(mod => {
+          message += `   ➕ ${mod.name}\n`;
+        });
+      }
     });
 
     const formattedTotal = new Intl.NumberFormat("es-CO").format(totalAmount);
@@ -45,7 +54,7 @@ const CartModal = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl w-full max-w-md m-4 p-6 relative transform transition-all duration-300 scale-100"
+        className="bg-white rounded-lg shadow-2xl w-full max-w-md m-4 p-6 relative transform transition-all duration-300 scale-100 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -56,10 +65,10 @@ const CartModal = ({ isOpen, onClose }) => {
         </button>
 
         <h2
-          className="text-3xl font-serif font-extrabold mb-6 pb-2 text-center"
+          className="text-3xl font-serif font-extrabold mb-4 pb-2 text-center"
           style={{ color: VINO, borderBottom: `2px solid ${DORADO}` }}
         >
-          Tu Pedido Delinadim
+          Tu Pedido
         </h2>
 
         {cart.length === 0 ? (
@@ -68,13 +77,12 @@ const CartModal = ({ isOpen, onClose }) => {
           </p>
         ) : (
           <>
-            <div className="max-h-80 overflow-y-auto mb-4 border-b pb-4">
+            <div className="overflow-y-auto mb-4 border-b pb-4 pr-2 flex-grow">
               {cart.map((cartItem, index) => (
                 <div
                   key={index}
                   className="flex justify-between items-center py-4 border-b last:border-b-0"
                 >
-                  {/* Imagen del producto */}
                   <img
                     src={cartItem.item.imageURL}
                     alt={cartItem.item.title}
@@ -86,25 +94,35 @@ const CartModal = ({ isOpen, onClose }) => {
                     <p className="text-gray-900 font-semibold">
                       {cartItem.item.title}
                     </p>
+                    
+                    {/* 🚀 MOSTRAMOS LOS EXTRAS EN LA INTERFAZ DEL CARRITO */}
+                    {cartItem.modifiers && cartItem.modifiers.length > 0 && (
+                      <ul className="text-xs text-gray-500 italic mb-1">
+                        {cartItem.modifiers.map((mod, idx) => (
+                          <li key={idx}>+ {mod.name}</li>
+                        ))}
+                      </ul>
+                    )}
+
                     <p className="text-sm text-gray-500">
                       Total:{" "}
                       <span className="font-bold">
                         $
                         {new Intl.NumberFormat("es-CO").format(
-                          cartItem.item.price * cartItem.quantity
+                          cartItem.unitPrice * cartItem.quantity // 🚀 Calculamos con unitPrice
                         )}
                       </span>
                     </p>
                   </div>
 
                   <div className="flex flex-col items-end">
-                    {/* Input numérico editable + botones */}
                     <div
                       className="flex items-center mb-2 border rounded-md overflow-hidden"
                       style={{ borderColor: DORADO }}
                     >
                       <button
-                        onClick={() => decrementItem(cartItem.item.id)}
+                        // 🚀 CAMBIADO A cartItemId
+                        onClick={() => decrementItem(cartItem.cartItemId)}
                         className="px-3 py-1 text-xl font-bold hover:bg-gray-100"
                         style={{ color: VINO }}
                       >
@@ -120,19 +138,21 @@ const CartModal = ({ isOpen, onClose }) => {
                           if (value > 0) {
                             const diff = value - cartItem.quantity;
                             if (diff > 0) {
+                              // 🚀 CAMBIADO A cartItemId
                               for (let i = 0; i < diff; i++)
-                                incrementItem(cartItem.item.id);
+                                incrementItem(cartItem.cartItemId);
                             } else {
                               for (let i = 0; i < Math.abs(diff); i++)
-                                decrementItem(cartItem.item.id);
+                                decrementItem(cartItem.cartItemId);
                             }
                           }
                         }}
-                        className="w-12 text-center outline-none"
+                        className="w-12 text-center outline-none bg-transparent"
                       />
 
                       <button
-                        onClick={() => incrementItem(cartItem.item.id)}
+                        // 🚀 CAMBIADO A cartItemId
+                        onClick={() => incrementItem(cartItem.cartItemId)}
                         className="px-3 py-1 text-xl font-bold hover:bg-gray-100"
                         style={{ color: VINO }}
                       >
@@ -141,8 +161,9 @@ const CartModal = ({ isOpen, onClose }) => {
                     </div>
 
                     <button
-                      onClick={() => removeItem(cartItem.item.id)}
-                      className="text-red-500 hover:text-red-700 text-xs mt-1 p-1"
+                      // 🚀 CAMBIADO A cartItemId
+                      onClick={() => removeItem(cartItem.cartItemId)}
+                      className="text-red-500 hover:text-red-700 text-xs mt-1 p-1 font-semibold"
                     >
                       Eliminar
                     </button>
@@ -152,35 +173,35 @@ const CartModal = ({ isOpen, onClose }) => {
             </div>
 
             <div
-              className="mt-4 pt-2 border-t-2"
+              className="mt-2 pt-4 border-t-2 shrink-0"
               style={{ borderColor: DORADO }}
             >
-              <div className="flex justify-between items-center font-bold text-xl">
+              <div className="flex justify-between items-center font-bold text-xl mb-4">
                 <span>Total General:</span>
                 <span style={{ color: VINO }}>
                   ${new Intl.NumberFormat("es-CO").format(totalAmount)}
                 </span>
               </div>
-            </div>
 
-            <div className="mt-6 space-y-3">
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={clearCart}
-                className="w-full flex items-center justify-center py-3 px-4 rounded-xl text-lg font-extrabold text-white transition duration-300 transform hover:scale-[1.02] shadow-lg"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                📱 Finalizar Pedido por WhatsApp
-              </a>
+              <div className="space-y-3">
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={clearCart}
+                  className="w-full flex items-center justify-center py-3 px-4 rounded-xl text-lg font-extrabold text-white transition duration-300 transform hover:scale-[1.02] shadow-lg"
+                  style={{ backgroundColor: "#25D366" }}
+                >
+                  📱 Finalizar Pedido
+                </a>
 
-              <button
-                onClick={clearCart}
-                className="w-full py-2 px-4 rounded-xl text-sm font-semibold text-gray-600 border border-gray-300 hover:bg-gray-100 transition duration-300"
-              >
-                Vaciar Carrito
-              </button>
+                <button
+                  onClick={clearCart}
+                  className="w-full py-2 px-4 rounded-xl text-sm font-semibold text-gray-600 border border-gray-300 hover:bg-gray-100 transition duration-300"
+                >
+                  Vaciar Carrito
+                </button>
+              </div>
             </div>
           </>
         )}
