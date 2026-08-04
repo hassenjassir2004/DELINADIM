@@ -1,52 +1,62 @@
-// context.zip/context/CartContext.jsx
 import React, { createContext, useState, useContext } from "react";
 
-// 1. CREACIÓN DEL CONTEXTO: Aquí se almacena el estado y las funciones del carrito.
+// 1. CREACIÓN DEL CONTEXTO
 export const CartContext = createContext();
 
-/**
- * Proveedor de Contexto que envuelve toda la aplicación y expone el estado del carrito.
- */
 export const CartProvider = ({ children }) => {
-  // Estado principal del carrito: un array de objetos { item, quantity }
+  // Estado principal del carrito: ahora guardará { cartItemId, item, quantity, modifiers, unitPrice }
   const [cart, setCart] = useState([]);
 
   // --- FUNCIONES LÓGICAS DEL CARRITO ---
 
   /**
-   * Agrega un ítem al carrito o incrementa su cantidad si ya existe.
-   * @param {object} item - El objeto del plato (con id, title, price, etc.).
+   * 🚀 MODIFICADO: Agrega un ítem al carrito y acepta un array de modificadores.
+   * @param {object} item - El objeto del plato original.
+   * @param {array} modifiers - Lista de modificaciones (ej. [{ name: "Extra pan", price: 3000 }]).
    */
-  const addItem = (item) => {
-    // Asegura que el precio es un número limpio para cálculos
-    // Nota: Este paso ya está en tu código original, manteniéndolo.
-    const itemPriceCleaned = parseFloat(item.price.replace(".", ""));
+  const addItem = (item, modifiers = []) => {
+    // 1. Limpiamos el precio base del plato
+    const basePrice = parseFloat(item.price.toString().replace(".", ""));
+    
+    // 2. Calculamos el precio adicional de los modificadores elegidos
+    const modifiersPrice = modifiers.reduce((acc, mod) => acc + (parseFloat(mod.price) || 0), 0);
+    
+    // 3. Precio unitario final (Base + Modificadores)
+    const finalUnitPrice = basePrice + modifiersPrice;
 
-    // Busca si el ítem ya está en el carrito
-    const itemIndex = cart.findIndex(
-      (cartItem) => cartItem.item.id === item.id
-    );
+    // 4. 🚀 MAGIA: Creamos un ID único combinando el ID del plato y los modificadores.
+    // Así, un hummus normal y un hummus con extra pan no se mezclan.
+    const modifiersString = JSON.stringify(modifiers); // Convertimos a texto para comparar
+    const cartItemId = `${item.id}-${modifiersString}`;
+
+    // Buscamos si EXACTAMENTE el mismo plato con los MISMOS modificadores ya está en el carrito
+    const itemIndex = cart.findIndex((cartItem) => cartItem.cartItemId === cartItemId);
 
     if (itemIndex > -1) {
-      // Caso 1: El ítem existe, incrementa la cantidad
+      // Caso 1: El ítem exacto ya existe, solo incrementamos cantidad
       const newCart = [...cart];
       newCart[itemIndex].quantity += 1;
       setCart(newCart);
     } else {
-      // Caso 2: El ítem es nuevo, lo agrega con cantidad 1
+      // Caso 2: Es una nueva combinación, lo agregamos como nuevo
       setCart([
         ...cart,
-        { item: { ...item, price: itemPriceCleaned }, quantity: 1 },
+        { 
+          cartItemId, // Usaremos este ID para borrar o incrementar en el carrito
+          item: { ...item, price: basePrice }, 
+          quantity: 1, 
+          modifiers, 
+          unitPrice: finalUnitPrice 
+        },
       ]);
     }
   };
 
   /**
-   * Incrementa la cantidad de un ítem existente en 1.
-   * @param {number} itemId - ID del plato a incrementar.
+   * 🚀 MODIFICADO: Ahora usa el cartItemId (ID único) en lugar del item.id
    */
-  const incrementItem = (itemId) => {
-    const itemIndex = cart.findIndex((cartItem) => cartItem.item.id === itemId);
+  const incrementItem = (cartItemId) => {
+    const itemIndex = cart.findIndex((cartItem) => cartItem.cartItemId === cartItemId);
     if (itemIndex > -1) {
       const newCart = [...cart];
       newCart[itemIndex].quantity += 1;
@@ -55,52 +65,41 @@ export const CartProvider = ({ children }) => {
   };
 
   /**
-   * Decrementa la cantidad de un ítem existente en 1.
-   * Si la cantidad llega a 0, elimina el ítem del carrito.
-   * @param {number} itemId - ID del plato a decrementar.
+   * 🚀 MODIFICADO: Ahora usa el cartItemId
    */
-  const decrementItem = (itemId) => {
-    const itemIndex = cart.findIndex((cartItem) => cartItem.item.id === itemId);
+  const decrementItem = (cartItemId) => {
+    const itemIndex = cart.findIndex((cartItem) => cartItem.cartItemId === cartItemId);
 
     if (itemIndex > -1) {
       const newCart = [...cart];
-      // Si la cantidad es mayor a 1, solo decrementa
       if (newCart[itemIndex].quantity > 1) {
         newCart[itemIndex].quantity -= 1;
         setCart(newCart);
       } else {
-        // Si la cantidad es 1, lo elimina completamente
-        removeItem(itemId);
+        removeItem(cartItemId);
       }
     }
   };
 
   /**
-   * Elimina un ítem completamente del carrito.
-   * @param {number} itemId - ID del plato a eliminar.
+   * 🚀 MODIFICADO: Ahora elimina basándose en el cartItemId
    */
-  const removeItem = (itemId) => {
-    const filteredCart = cart.filter((cartItem) => cartItem.item.id !== itemId);
+  const removeItem = (cartItemId) => {
+    const filteredCart = cart.filter((cartItem) => cartItem.cartItemId !== cartItemId);
     setCart(filteredCart);
   };
 
-  /**
-   * Vacía el carrito por completo.
-   */
   const clearCart = () => {
     setCart([]);
   };
 
-  /**
-   * Calcula el total de ítems en el carrito (suma de todas las cantidades).
-   */
   const totalItems = cart.reduce((acc, current) => acc + current.quantity, 0);
 
   /**
-   * Calcula el monto total del carrito.
+   * 🚀 MODIFICADO: Calcula el monto usando el precio unitario final (con modificadores)
    */
   const totalAmount = cart.reduce(
-    (acc, current) => acc + current.item.price * current.quantity,
+    (acc, current) => acc + current.unitPrice * current.quantity,
     0
   );
 
@@ -113,7 +112,6 @@ export const CartProvider = ({ children }) => {
         clearCart,
         totalItems,
         totalAmount,
-        // 🔑 Añade las nuevas funciones al valor del contexto
         incrementItem,
         decrementItem,
       }}
@@ -123,9 +121,6 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-/**
- * Hook personalizado para usar el contexto del carrito fácilmente.
- */
 export const useCart = () => {
   return useContext(CartContext);
 };
